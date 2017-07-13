@@ -1,38 +1,21 @@
 var url = "data/earth-like-results.json";
 var arregloPlanetas = [];
 var contador = 1;
-function getJSON(url){
-  // se pone return porque queremos regresar el objeto promesa con todo y sus métodos
-  return new Promise(function(resolve,reject){
-    //con la palabra new está creando un nuevo objeto, es una instancia del objeto XMLHttp...
-    var ajax = new XMLHttpRequest();
-    // peparar a ajax para hacer una peticion get
-    ajax.open("GET",url);
-    ajax.send();
-    // pregunta si hay un cambio de estado
-    ajax.onreadystatechange = function(){
-      // son los estados de ajax de 0 a 4...4 es cuando ya está lista
-      if(ajax.readyState == 4){
-        // json.parse convierte un string en un json
-        resolve(JSON.parse(ajax.responseText));
-      }
-    }
-  })
-};
-// paso1
-// aquí el getJSON para cada elemento de planetas
 
-getJSON(url).then(function(respuesta){
- // console.log(respuesta.results);
- for(var i = 0; i < respuesta.results.length ; i++){
-  arregloPlanetas.push(getJSON(respuesta.results[i]));
-  arregloPlanetas[i].then(function(planeta){
-    console.log(planeta);
-    obtenerDatos(planeta);
-  });
- }
- // return arregloPlanetas;
-});
+fetch(url).then(function(response){
+  //json hace la función de JSON.parse
+  return response.json();
+}).then(function(respuesta){
+  for(var i = 0; i < respuesta.results.length ; i++){
+    arregloPlanetas.push(fetch(respuesta.results[i]));
+    arregloPlanetas[i].then(function(respuestaDos){
+      return respuestaDos.json();
+    }).then(function(planeta){
+      obtenerDatos(planeta);
+    });
+   }
+   // return arregloPlanetas;
+})
 var obtenerDatos = function(planeta){
  var nombre =planeta.pl_name;
  var telescope=planeta.pl_telescope;
